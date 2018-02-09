@@ -1,0 +1,3 @@
+# FaaS framework to install
+# Right now only 'openfaas' supported
+faas_framework: 'openfaas'
