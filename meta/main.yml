@@ -13,6 +13,6 @@ galaxy_info:
     - trusty
     - xenial
   galaxy_tags:
-    - faas
+    - kubefaas
 
 dependencies: []
