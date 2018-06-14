@@ -17,19 +17,16 @@
   retries: 120
   delay: 5
 
-- name: Copy faas-cli install script
-  copy: 
-    src: faas-cli.sh
-    dest: /tmp/faas-cli.sh
-    mode: 0755
-
-- name: Execute faas-cli install script
-  command: bash /tmp/faas-cli.sh
-
 - name: Clone OpenFaas repo
   git:
     repo: 'https://github.com/openfaas/faas-netes'
     dest: /tmp/faas-netes
 
+- name: "Create OpenFaas namespaces"
+  command: kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
+
 - name: "Add OpenFaas using Helm"
-  command: helm upgrade --set async=true --install openfaas /tmp/faas-netes/chart/openfaas/
+  command: cd /tmp/faas-netes && kubectl apply -f ./yaml
+
+- name: "Install the CLI"
+  command: curl -sL https://cli.openfaas.com | sh
