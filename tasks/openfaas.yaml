@@ -14,8 +14,8 @@
   register: tiller_ready_status
   # Wait for 10 minutes
   until: tiller_ready_status.stdout | match( '^(true\s)*true$' )
-  retries: 120
-  delay: 5
+  retries: 20
+  delay: 30
 
 - name: Clone OpenFaas repo
   git:
@@ -26,7 +26,9 @@
   command: kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
 
 - name: "Add OpenFaas using Helm"
-  command: cd /tmp/faas-netes && kubectl apply -f ./yaml
+  command: kubectl apply -f ./yaml
+  args:
+    chdir: /tmp/faas-netes
 
 - name: "Install the CLI"
   command: curl -sL https://cli.openfaas.com | sh
