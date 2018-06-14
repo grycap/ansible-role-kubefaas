@@ -14,22 +14,32 @@
   register: tiller_ready_status
   # Wait for 10 minutes
   until: tiller_ready_status.stdout | match( '^(true\s)*true$' )
-  retries: 120
-  delay: 5
-
-- name: Copy faas-cli install script
-  copy: 
-    src: faas-cli.sh
-    dest: /tmp/faas-cli.sh
-    mode: 0755
-
-- name: Execute faas-cli install script
-  command: bash /tmp/faas-cli.sh
+  retries: 20
+  delay: 30
 
 - name: Clone OpenFaas repo
   git:
     repo: 'https://github.com/openfaas/faas-netes'
     dest: /tmp/faas-netes
 
+- name: "Create OpenFaas namespaces"
+  command: kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
+
 - name: "Add OpenFaas using Helm"
-  command: helm upgrade --set async=true --install openfaas /tmp/faas-netes/chart/openfaas/
+  command: kubectl apply -f ./yaml
+  args:
+    chdir: /tmp/faas-netes
+
+- name: "Download the CLI installer"
+  get_url:
+    url: https://cli.openfaas.com
+    dest: /tmp/faas-cli.sh
+    mode: 0755
+
+- name: "Install faas-cli"
+  script: /tmp/faas-cli.sh
+  
+- name: "Add OpenFaas URL to FaasCli"
+  lineinfile: 
+    path: /etc/environment
+    line: OPENFAAS_URL=127.0.0.1:31112
