@@ -30,5 +30,11 @@
   args:
     chdir: /tmp/faas-netes
 
-- name: "Install the CLI"
-  command: curl -sL https://cli.openfaas.com | sh
+- name: "Download the CLI installer"
+  get_url:
+    url: https://cli.openfaas.com
+    dest: /tmp/faas-cli.sh
+    mode: 0755
+
+- name: "Install faas-cli"
+  script: /tmp/faas-cli.sh
