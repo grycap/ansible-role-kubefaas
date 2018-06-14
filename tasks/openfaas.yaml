@@ -38,3 +38,8 @@
 
 - name: "Install faas-cli"
   script: /tmp/faas-cli.sh
+  
+- name: "Add OpenFaas URL to FaasCli"
+  lineinfile: 
+    path: /etc/environment
+    line: OPENFAAS_URL=127.0.0.1:31112
