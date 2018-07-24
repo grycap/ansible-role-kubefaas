@@ -1,3 +1,7 @@
 # FaaS framework to install
 # Right now only 'openfaas' supported
 faas_framework: 'openfaas'
+# OpenFaaS version to install
+faas_version: 0.5.7
+# OpenFaaS CLI version to install
+cli_version: 0.6.13

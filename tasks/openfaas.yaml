@@ -21,6 +21,7 @@
   git:
     repo: 'https://github.com/openfaas/faas-netes'
     dest: /tmp/faas-netes
+    version: {{ faas_version }}
 
 - name: "Create OpenFaas namespaces"
   command: kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
@@ -32,7 +33,7 @@
 
 - name: "Download the CLI installer"
   get_url:
-    url: https://cli.openfaas.com
+    url: https://raw.githubusercontent.com/openfaas/faas-cli/{{ cli_version }}/get.sh
     dest: /tmp/faas-cli.sh
     mode: 0755
 
