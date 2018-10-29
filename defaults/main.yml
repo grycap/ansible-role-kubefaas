@@ -2,8 +2,8 @@
 # Right now only 'openfaas' supported
 faas_framework: 'openfaas'
 # OpenFaaS version to install
-faas_version: 0.5.7
+faas_version: 0.6.3
 # OpenFaaS CLI version to install
-cli_version: 0.6.13
+cli_version: 0.7.7
 # Queue worker ack wait (max duration in seconds of any async task/request)
 ack_wait: 300
