@@ -7,7 +7,9 @@
     force: yes
 
 - name: "Create OpenFaas namespaces"
-  command: kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
+  command: kubectl apply -f namespaces.yml
+  args:
+    chdir: /tmp/faas-netes
 
 - name: "Set queue worker ack wait"
   template: src=queueworker-dep.j2 dest=/tmp/faas-netes/yaml/queueworker-dep.yml
