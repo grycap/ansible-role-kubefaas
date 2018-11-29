@@ -1,0 +1,22 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: oscar-worker
+  namespace: oscar
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: queue-worker
+    spec:
+      serviceAccountName: oscar-worker-controller
+      containers:
+      - name:  oscar-queue-worker
+        image: "grycap/oscar-worker:{{ oscar_worker_version }}"
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: 250Mi
+          limits:
+            memory: 250Mi

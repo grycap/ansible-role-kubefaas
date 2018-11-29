@@ -7,3 +7,7 @@ faas_version: 0.6.3
 cli_version: 0.7.7
 # Queue worker ack wait (max duration in seconds of any async task/request)
 ack_wait: 300
+# Deploy OSCAR Worker instead of OpenFaaS nats-queue-worker
+deploy_oscar_worker: true
+# OSCAR Worker version to install
+oscar_worker_version: latest
