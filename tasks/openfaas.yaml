@@ -15,9 +15,11 @@
 - name: "Add OpenFaaS helm chart"
   command: helm repo add openfaas https://openfaas.github.io/faas-netes/
 
+- name: "Update helm repositories"
+  command: helm repo update
+
 - name: "Deploy OpenFaaS using helm"
   command: >
-    helm repo update &&
     helm upgrade openfaas --install openfaas/openfaas
     --namespace openfaas
     --set basic_auth=true
