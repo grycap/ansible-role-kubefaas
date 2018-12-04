@@ -1,23 +1,29 @@
 ---
-- name: Clone OpenFaas repo
-  git:
-    repo: 'https://github.com/openfaas/faas-netes'
-    dest: /tmp/faas-netes
-    version: "{{ faas_version }}"
-    force: yes
-
 - name: "Create OpenFaas namespaces"
-  command: kubectl apply -f namespaces.yml
-  args:
-    chdir: /tmp/faas-netes
+  command: kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
 
-- name: "Set queue worker ack wait"
-  template: src=queueworker-dep.j2 dest=/tmp/faas-netes/yaml/queueworker-dep.yml
+- name: "Generate password for the gateway"
+  set_fact:
+    gw_password: "{{ lookup('password', '/var/tmp/gw_password chars=ascii_lowercase,digits length=40') }}"
 
-- name: "Deploy all OpenFaaS components"
-  command: kubectl apply -f ./yaml
-  args:
-    chdir: /tmp/faas-netes
+- name: "Create secrets to enable basic auth"
+  command: >
+    kubectl -n openfaas create secret generic basic auth
+    --from-literal=basic-auth-user=admin
+    --from-literal=basic-auth-password={{ gw_password }}
+
+- name: "Add OpenFaaS helm chart"
+  command: helm repo add openfaas https://openfaas.github.io/faas-netes/
+
+- name: "Deploy OpenFaaS using helm"
+  command: >
+    helm repo update &&
+    helm upgrade openfaas --install openfaas/openfaas
+    --namespace openfaas
+    --set basic_auth=true
+    --set functionNamespace=openfaas-fn
+    --set faasIdler.dryRun=false
+    --set queueWorker.ackWait={{ ack_wait }}s
 
 - name: "Download the CLI binary"
   get_url:
@@ -39,7 +45,7 @@
       command: kubectl delete deployment queue-worker -n openfaas
 
     - name: "Copy oscar-namespace.yaml"
-      copy: src=oscar-namespace.yaml dest=/tmp/oscar-namespace.yaml
+      copy: src=oscar-namespaces.yaml dest=/tmp/oscar-namespaces.yaml
 
     - name: "Create 'oscar' namespace if not exists"
       command: kubectl apply -f /tmp/oscar-namespace.yaml
