@@ -38,11 +38,8 @@
     - name: "Delete OpenFaaS nats-queue-worker deployment"
       command: kubectl delete deployment queue-worker -n openfaas
 
-    - name: "Copy oscar-namespace.yaml"
-      copy: src=oscar-namespace.yaml dest=/tmp/oscar-namespace.yaml
-
-    - name: "Create 'oscar' namespace if not exists"
-      command: kubectl apply -f /tmp/oscar-namespace.yaml
+    - name: "Create OSCAR namespaces"
+      command: kubectl apply -f https://raw.githubusercontent.com/grycap/oscar-worker/master/yaml/oscar-worker-namespaces.yaml
 
     - name: "Apply oscar-worker-rbac.yaml"
       command: kubectl apply -f https://raw.githubusercontent.com/grycap/oscar-worker/master/yaml/oscar-worker-rbac.yaml
