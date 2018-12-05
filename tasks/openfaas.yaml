@@ -43,6 +43,7 @@
     --set basic_auth=true
     --set functionNamespace=openfaas-fn
     --set faasIdler.dryRun=false
+    --set faasIdler.inactivityDuration=1m
     --set queueWorker.ackWait={{ ack_wait }}s
 
 - name: "Download the CLI binary"

@@ -1,3 +1,13 @@
 ---
-- include: openfaas.yaml
+- name: "OpenFaaS deployment"
+  block:
+    - name: "Check if OpenFaaS is already deployed"
+      shell: kubectl get namespaces -o jsonpath={$.items[*].metadata.name} | grep openfaas
+      register: deploy_openfaas
+      failed_when: deploy_openfaas.rc != 0 and deploy_openfaas.rc != 1
+
+    - name: "Deploy OpenFaaS"
+      include: openfaas.yaml
+      when: deploy_openfaas.rc == 1
+
   when: faas_framework == 'openfaas'
