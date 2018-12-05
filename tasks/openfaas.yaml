@@ -62,6 +62,7 @@
 
 - name: "OSCAR Worker deployment"
   block:
+
     - name: "Delete OpenFaaS nats-queue-worker deployment"
       command: kubectl delete deployment queue-worker -n openfaas
 
@@ -70,7 +71,13 @@
 
     - name: "Apply oscar-worker-rbac.yaml"
       command: kubectl apply -f https://raw.githubusercontent.com/grycap/oscar-worker/master/yaml/oscar-worker-rbac.yaml
-      
+
+    - name: "Create a copy of gateway secret in oscar namespace"
+      command: >
+        kubectl -n oscar create secret generic basic-auth
+        --from-literal=basic-auth-user=admin
+        --from-literal=basic-auth-password={{ gw_password }}
+
     - name: "Deploy OSCAR Worker"
       block:
         - template: src=oscar-worker-dep.j2 dest=/tmp/oscar-worker-dep.yaml
