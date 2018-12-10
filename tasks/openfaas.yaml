@@ -1,23 +1,50 @@
 ---
-- name: Clone OpenFaas repo
-  git:
-    repo: 'https://github.com/openfaas/faas-netes'
-    dest: /tmp/faas-netes
-    version: "{{ faas_version }}"
-    force: yes
-
 - name: "Create OpenFaas namespaces"
-  command: kubectl apply -f namespaces.yml
-  args:
-    chdir: /tmp/faas-netes
+  command: kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
 
-- name: "Set queue worker ack wait"
-  template: src=queueworker-dep.j2 dest=/tmp/faas-netes/yaml/queueworker-dep.yml
+- name: "Generate password for the gateway"
+  set_fact:
+    gw_password: "{{ lookup('password', '/var/tmp/gw_password chars=ascii_lowercase,digits length=40') }}"
 
-- name: "Deploy all OpenFaaS components"
-  command: kubectl apply -f ./yaml
-  args:
-    chdir: /tmp/faas-netes
+- name: "Create secrets to enable basic auth"
+  command: >
+    kubectl -n openfaas create secret generic basic-auth
+    --from-literal=basic-auth-user=admin
+    --from-literal=basic-auth-password={{ gw_password }}
+
+- name: "get tiller-deploy pod name"
+  shell: >
+    kubectl get pods --namespace=kube-system |
+    grep tiller-deploy- |
+    awk '{print $1;}' |
+    tr -d '\n'
+  register: get_pod_name
+  
+- name: "wait for tiller-deploy ready status"
+  command: >
+    kubectl get pods --namespace=kube-system {{get_pod_name.stdout}}
+    -o jsonpath='{.status.containerStatuses[*].ready}'
+  register: tiller_ready_status
+  # Wait for 10 minutes
+  until: tiller_ready_status.stdout | match( '^(true\s)*true$' )
+  retries: 20
+  delay: 30
+
+- name: "Add OpenFaaS helm chart"
+  command: helm repo add openfaas https://openfaas.github.io/faas-netes/
+
+- name: "Update helm repositories"
+  command: helm repo update
+
+- name: "Deploy OpenFaaS using helm"
+  command: >
+    helm upgrade openfaas --install openfaas/openfaas
+    --namespace openfaas
+    --set basic_auth=true
+    --set functionNamespace=openfaas-fn
+    --set faasIdler.dryRun=false
+    --set faasIdler.inactivityDuration=1m
+    --set queueWorker.ackWait={{ ack_wait }}s
 
 - name: "Download the CLI binary"
   get_url:
@@ -35,6 +62,7 @@
 
 - name: "OSCAR Worker deployment"
   block:
+
     - name: "Delete OpenFaaS nats-queue-worker deployment"
       command: kubectl delete deployment queue-worker -n openfaas
 
@@ -43,7 +71,13 @@
 
     - name: "Apply oscar-worker-rbac.yaml"
       command: kubectl apply -f https://raw.githubusercontent.com/grycap/oscar-worker/master/yaml/oscar-worker-rbac.yaml
-      
+
+    - name: "Create a copy of gateway secret in oscar namespace"
+      command: >
+        kubectl -n oscar create secret generic basic-auth
+        --from-literal=basic-auth-user=admin
+        --from-literal=basic-auth-password={{ gw_password }}
+
     - name: "Deploy OSCAR Worker"
       block:
         - template: src=oscar-worker-dep.j2 dest=/tmp/oscar-worker-dep.yaml
