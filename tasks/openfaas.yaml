@@ -21,7 +21,7 @@
 - name: "Update helm repositories"
   command: helm repo update
 
-- name: "Deploy OpenFaaS using helm"
+- name: "Deploy OpenFaaS in Master using helm"
   command: >
     helm upgrade openfaas --install openfaas/openfaas
     --namespace openfaas
@@ -30,6 +30,21 @@
     --set faasIdler.dryRun=false
     --set faasIdler.inactivityDuration=1m
     --set queueWorker.ackWait={{ ack_wait }}s
+    --set tolerations[0].key=node-role.kubernetes.io/master
+    --set tolerations[0].operator=Exists
+    --set tolerations[0].effect=NoSchedule
+  when: master_deploy == true
+
+- name: "Deploy OpenFaaS in WN using helm"
+  command: >
+    helm upgrade openfaas --install openfaas/openfaas
+    --namespace openfaas
+    --set basic_auth=true
+    --set functionNamespace=openfaas-fn
+    --set faasIdler.dryRun=false
+    --set faasIdler.inactivityDuration=1m
+    --set queueWorker.ackWait={{ ack_wait }}s
+  when: master_deploy == false
 
 - name: "Download the CLI binary"
   get_url:
