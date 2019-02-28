@@ -15,6 +15,9 @@ spec:
       - name:  oscar-queue-worker
         image: "grycap/oscar-worker:{{ oscar_worker_version }}"
         imagePullPolicy: Always
+        env:
+        - name: JOB_BACKOFF_LIMIT
+          value: {{ oscar_worker_backoff_limit }}
         resources:
           requests:
             memory: 250Mi
