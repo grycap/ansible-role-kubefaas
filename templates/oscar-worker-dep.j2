@@ -1,10 +1,15 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: oscar-worker
   namespace: oscar
+  labels:
+    app: queue-worker
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: queue-worker
   template:
     metadata:
       labels:
@@ -17,7 +22,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: JOB_BACKOFF_LIMIT
-          value: {{ oscar_worker_backoff_limit }}
+          value: "{{ oscar_worker_backoff_limit }}"
         resources:
           requests:
             memory: 250Mi
