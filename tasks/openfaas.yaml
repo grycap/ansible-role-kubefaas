@@ -23,7 +23,7 @@
 
 - name: "Deploy OpenFaaS in Master using helm"
   command: >
-    helm upgrade openfaas --install openfaas/openfaas
+    helm upgrade openfaas --install openfaas/openfaas {{ '' if faas_chart_version == 'latest' else ('--version ' + faas_chart_version) }}
     --namespace openfaas
     --set basic_auth=true
     --set functionNamespace=openfaas-fn
@@ -37,7 +37,7 @@
 
 - name: "Deploy OpenFaaS in WN using helm"
   command: >
-    helm upgrade openfaas --install openfaas/openfaas
+    helm upgrade openfaas --install openfaas/openfaas {{ '' if faas_chart_version == 'latest' else ('--version ' + faas_chart_version) }}
     --namespace openfaas
     --set basic_auth=true
     --set functionNamespace=openfaas-fn
