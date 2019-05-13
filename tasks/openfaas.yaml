@@ -8,6 +8,7 @@
 - name: "Generate password for the gateway"
   set_fact:
     gw_password: "{{ lookup('password', '/var/tmp/gw_password chars=ascii_lowercase,digits length=40') }}"
+  when: gw_password is undefined
 
 - name: "Create secrets to enable basic auth"
   command: >
