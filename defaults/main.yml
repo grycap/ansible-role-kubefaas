@@ -4,7 +4,7 @@ faas_framework: 'openfaas'
 # OpenFaaS chart version to install
 faas_chart_version: latest
 # OpenFaaS CLI version to install
-cli_version: 0.8.11
+cli_version: latest
 # Queue worker ack wait (max duration in seconds of any async task/request)
 ack_wait: 300
 # Deploy OSCAR Worker instead of OpenFaaS nats-queue-worker
