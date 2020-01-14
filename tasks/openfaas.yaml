@@ -48,10 +48,24 @@
   when: master_deploy == false
 
 - name: "Download the CLI binary"
-  get_url:
-    url: https://github.com/openfaas/faas-cli/releases/download/{{ cli_version }}/faas-cli 
-    dest: /usr/local/bin/faas-cli
-    mode: 0755
+  block:
+
+  - block:
+    - uri:
+        url: https://api.github.com/repos/openfaas/faas-cli/releases/latest
+        return_content: true
+      register: json_response
+    - get_url:
+        url: https://github.com/openfaas/faas-cli/releases/download/{{ json_response.json.tag_name }}/faas-cli 
+        dest: /usr/local/bin/faas-cli
+        mode: 0755
+    when: cli_version == 'latest'
+
+  - get_url:
+      url: https://github.com/openfaas/faas-cli/releases/download/{{ cli_version }}/faas-cli 
+      dest: /usr/local/bin/faas-cli
+      mode: 0755
+    when: cli_version != 'latest'
 
 - name: "Create 'faas' symlink"
   command: ln -sf /usr/local/bin/faas-cli /usr/local/bin/faas
