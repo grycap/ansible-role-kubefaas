@@ -2,9 +2,6 @@
 - name: "Create OpenFaas namespaces"
   command: kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
 
-- name: "Wait for tiller-deploy ready status"
-  command: kubectl rollout status deployment/tiller-deploy -n kube-system
-
 - name: "Generate password for the gateway"
   set_fact:
     gw_password: "{{ lookup('password', '/var/tmp/gw_password chars=ascii_lowercase,digits length=40') }}"
