@@ -27,6 +27,7 @@
     --set functionNamespace=openfaas-fn
     --set faasIdler.dryRun=false
     --set faasIdler.inactivityDuration=1m
+    --set exposeServices=false
     --set queueWorker.ackWait={{ ack_wait }}s
     --set tolerations[0].key=node-role.kubernetes.io/master
     --set tolerations[0].operator=Exists
@@ -41,8 +42,21 @@
     --set functionNamespace=openfaas-fn
     --set faasIdler.dryRun=false
     --set faasIdler.inactivityDuration=1m
+    --set exposeServices=false
     --set queueWorker.ackWait={{ ack_wait }}s
   when: master_deploy == false
+
+- name: "Create ingress resources"
+  block:
+  - copy: src=openfaas-ingress.yaml dest=/tmp/openfaas-ingress.yaml
+  - command: kubectl apply -f /tmp/openfaas-ingress.yaml
+  when: expose_mode == 'Ingress'
+
+- name: "Create external service"
+  block:
+  - copy: src=openfaas-external-svc.yaml dest=/tmp/openfaas-external-svc.yaml
+  - command: kubectl apply -f /tmp/openfaas-external-svc.yaml
+  when: expose_mode == 'NodePort'
 
 - name: "Download the CLI binary"
   block:
