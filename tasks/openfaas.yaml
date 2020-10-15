@@ -7,11 +7,19 @@
     gw_password: "{{ lookup('password', '/var/tmp/gw_password chars=ascii_lowercase,digits length=40') }}"
   when: gw_password is undefined
 
+- name: "Check if basic auth secrets are installed"
+  command: kubectl get secret basic-auth -n openfaas
+  register: openfaas_secret_created
+  failed_when: openfaas_secret_created.rc != 0 and openfaas_secret_created.rc != 1
+  ignore_errors: yes
+  changed_when: false
+
 - name: "Create secrets to enable basic auth"
   command: >
     kubectl -n openfaas create secret generic basic-auth
     --from-literal=basic-auth-user=admin
     --from-literal=basic-auth-password={{ gw_password }}
+  when: openfaas_secret_created.rc == 1
 
 - name: "Add OpenFaaS helm chart"
   command: helm repo add openfaas https://openfaas.github.io/faas-netes/
@@ -91,6 +99,7 @@
 
     - name: "Delete OpenFaaS nats-queue-worker deployment"
       command: kubectl delete deployment queue-worker -n openfaas
+      ignore_errors: yes
 
     - name: "Create OSCAR namespaces"
       command: kubectl apply -f https://raw.githubusercontent.com/grycap/oscar-worker/master/yaml/oscar-worker-namespaces.yaml
@@ -98,11 +107,19 @@
     - name: "Apply oscar-worker-rbac.yaml"
       command: kubectl apply -f https://raw.githubusercontent.com/grycap/oscar-worker/master/yaml/oscar-worker-rbac.yaml
 
+    - name: "Check if basic auth secrets are created in oscar namespace"
+      command: kubectl get secret basic-auth -n oscar
+      register: oscar_secret_created
+      failed_when: oscar_secret_created.rc != 0 and oscar_secret_created.rc != 1
+      ignore_errors: yes
+      changed_when: false
+
     - name: "Create a copy of gateway secret in oscar namespace"
       command: >
         kubectl -n oscar create secret generic basic-auth
         --from-literal=basic-auth-user=admin
         --from-literal=basic-auth-password={{ gw_password }}
+      when: oscar_secret_created.rc == 1
 
     - name: "Deploy OSCAR Worker"
       block:
