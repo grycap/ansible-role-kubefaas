@@ -3,16 +3,12 @@
 faas_framework: 'openfaas'
 # OpenFaaS chart version to install
 faas_chart_version: latest
+# Namespace to deploy OpenFaaS functions
+functions_namespace: openfaas-fn
 # OpenFaaS CLI version to install
 cli_version: latest
 # Queue worker ack wait (max duration in seconds of any async task/request)
 ack_wait: 300
-# Deploy OSCAR Worker instead of OpenFaaS nats-queue-worker
-deploy_oscar_worker: true
-# OSCAR Worker version to install
-oscar_worker_version: latest
-# OSCAR Worker job backoffLimit (number of retries when job fails)
-oscar_worker_backoff_limit: 3
 # Deploy in Kubernetes Master node
 master_deploy: false
 # Expose as a service (NodePort) or ingress 
