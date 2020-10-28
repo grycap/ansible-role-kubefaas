@@ -1,0 +1,23 @@
+basic_auth: true
+functionNamespace: {{ functions_namespace }}
+queueWorker:
+  ackWait: "{{ ack_wait }}s"
+
+faasIdler:
+  dryRun: false
+  inactivityDuration: 1m
+
+{% if expose_mode == 'Ingress' %}
+exposeServices: false
+
+ingress:
+  enabled: true
+{% endif %}
+{% if master_deploy %}
+tolerations:
+- key: node-role.kubernetes.io/master
+  operator: Exists
+  effect: NoSchedule
+nodeSelector:
+  node-role.kubernetes.io/master: ''
+{% endif %}

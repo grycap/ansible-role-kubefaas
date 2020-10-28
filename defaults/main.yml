@@ -13,4 +13,4 @@ ack_wait: 300
 master_deploy: false
 # Expose as a service (NodePort) or ingress 
 # NodePort | Ingress
-expose_mode: Ingress
+expose_mode: NodePort

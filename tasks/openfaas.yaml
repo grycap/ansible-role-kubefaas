@@ -1,74 +1,49 @@
 ---
-- name: "Create OpenFaas namespaces"
-  command: kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
+- name: Create OpenFaas namespaces
+  block:
+  - template:
+      src: openfaas-ns.j2
+      dest: /tmp/openfaas-ns.yaml
+  - command: kubectl apply -f /tmp/openfaas-ns.yaml
 
-- name: "Generate password for the gateway"
+- name: Generate password for the gateway
   set_fact:
     gw_password: "{{ lookup('password', '/var/tmp/gw_password chars=ascii_lowercase,digits length=40') }}"
   when: gw_password is undefined
 
-- name: "Check if basic auth secrets are installed"
+- name: Check if basic auth secrets are created
   command: kubectl get secret basic-auth -n openfaas
   register: openfaas_secret_created
   failed_when: openfaas_secret_created.rc != 0 and openfaas_secret_created.rc != 1
   ignore_errors: yes
   changed_when: false
 
-- name: "Create secrets to enable basic auth"
+- name: Create secrets to enable basic auth
   command: >
     kubectl -n openfaas create secret generic basic-auth
     --from-literal=basic-auth-user=admin
     --from-literal=basic-auth-password={{ gw_password }}
   when: openfaas_secret_created.rc == 1
 
-- name: "Add OpenFaaS helm chart"
+- name: Add OpenFaaS helm chart
   command: helm repo add openfaas https://openfaas.github.io/faas-netes/
 
-- name: "Update helm repositories"
+- name: Update helm repositories
   command: helm repo update
 
-- name: "Deploy OpenFaaS in Master using helm"
+- name: Create values file
+  template:
+    src: values.j2
+    dest: /tmp/openfaas-values.yaml
+
+- name: Deploy OpenFaaS in WN using helm
   command: >
     helm upgrade openfaas --install openfaas/openfaas {{ '' if faas_chart_version == 'latest' else ('--version ' + faas_chart_version) }}
     --namespace openfaas
-    --set basic_auth=true
-    --set functionNamespace=openfaas-fn
-    --set faasIdler.dryRun=false
-    --set faasIdler.inactivityDuration=1m
-    --set exposeServices=false
-    --set queueWorker.ackWait={{ ack_wait }}s
-    --set tolerations[0].key=node-role.kubernetes.io/master
-    --set tolerations[0].operator=Exists
-    --set tolerations[0].effect=NoSchedule
-  when: master_deploy == true
+    --values /tmp/openfaas-values.yaml
 
-- name: "Deploy OpenFaaS in WN using helm"
-  command: >
-    helm upgrade openfaas --install openfaas/openfaas {{ '' if faas_chart_version == 'latest' else ('--version ' + faas_chart_version) }}
-    --namespace openfaas
-    --set basic_auth=true
-    --set functionNamespace=openfaas-fn
-    --set faasIdler.dryRun=false
-    --set faasIdler.inactivityDuration=1m
-    --set exposeServices=false
-    --set queueWorker.ackWait={{ ack_wait }}s
-  when: master_deploy == false
-
-- name: "Create ingress resources"
+- name: Download the CLI binary
   block:
-  - copy: src=openfaas-ingress.yaml dest=/tmp/openfaas-ingress.yaml
-  - command: kubectl apply -f /tmp/openfaas-ingress.yaml
-  when: expose_mode == 'Ingress'
-
-- name: "Create external service"
-  block:
-  - copy: src=openfaas-external-svc.yaml dest=/tmp/openfaas-external-svc.yaml
-  - command: kubectl apply -f /tmp/openfaas-external-svc.yaml
-  when: expose_mode == 'NodePort'
-
-- name: "Download the CLI binary"
-  block:
-
   - block:
     - uri:
         url: https://api.github.com/repos/openfaas/faas-cli/releases/latest
@@ -79,51 +54,22 @@
         dest: /usr/local/bin/faas-cli
         mode: 0755
     when: cli_version == 'latest'
-
   - get_url:
       url: https://github.com/openfaas/faas-cli/releases/download/{{ cli_version }}/faas-cli 
       dest: /usr/local/bin/faas-cli
       mode: 0755
     when: cli_version != 'latest'
 
-- name: "Create 'faas' symlink"
+- name: Create 'faas' symlink
   command: ln -sf /usr/local/bin/faas-cli /usr/local/bin/faas
   
-- name: "Add OpenFaas URL to FaasCli"
-  lineinfile: 
-    path: /etc/environment
-    line: OPENFAAS_URL=127.0.0.1:31112
-
-- name: "OSCAR Worker deployment"
+- name: Add OpenFaas URL to FaasCli
   block:
+  - command: kubectl get svc gateway -n openfaas -o json
+    register: svc
+  - set_fact:
+      svc_json: "{{ svc.stdout | from_json }}"
+  - lineinfile: 
+      path: /etc/environment
+      line: OPENFAAS_URL={{ svc_json.spec.clusterIP }}:8080
 
-    - name: "Delete OpenFaaS nats-queue-worker deployment"
-      command: kubectl delete deployment queue-worker -n openfaas
-      ignore_errors: yes
-
-    - name: "Create OSCAR namespaces"
-      command: kubectl apply -f https://raw.githubusercontent.com/grycap/oscar-worker/master/yaml/oscar-worker-namespaces.yaml
-
-    - name: "Apply oscar-worker-rbac.yaml"
-      command: kubectl apply -f https://raw.githubusercontent.com/grycap/oscar-worker/master/yaml/oscar-worker-rbac.yaml
-
-    - name: "Check if basic auth secrets are created in oscar namespace"
-      command: kubectl get secret basic-auth -n oscar
-      register: oscar_secret_created
-      failed_when: oscar_secret_created.rc != 0 and oscar_secret_created.rc != 1
-      ignore_errors: yes
-      changed_when: false
-
-    - name: "Create a copy of gateway secret in oscar namespace"
-      command: >
-        kubectl -n oscar create secret generic basic-auth
-        --from-literal=basic-auth-user=admin
-        --from-literal=basic-auth-password={{ gw_password }}
-      when: oscar_secret_created.rc == 1
-
-    - name: "Deploy OSCAR Worker"
-      block:
-        - template: src=oscar-worker-dep.j2 dest=/tmp/oscar-worker-dep.yaml
-        - command: kubectl apply -f /tmp/oscar-worker-dep.yaml
-
-  when: deploy_oscar_worker == true
