@@ -14,3 +14,5 @@ master_deploy: false
 # Expose as a service (NodePort) or ingress 
 # NodePort | Ingress
 expose_mode: NodePort
+# Default kubeconfig path
+kubeconfig_path: '/etc/kubernetes/admin.conf'
