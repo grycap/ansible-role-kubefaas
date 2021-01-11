@@ -8,6 +8,8 @@
 
     - name: "Deploy OpenFaaS"
       include: openfaas.yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
       when: deploy_openfaas.rc == 1
 
   when: faas_framework == 'openfaas'
