@@ -6,6 +6,7 @@ queueWorker:
   ackWait: "{{ ack_wait }}s"
 
 faasIdler:
+  create: false
   dryRun: false
   inactivityDuration: 1m
 
