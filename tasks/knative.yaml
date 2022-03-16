@@ -1,0 +1,10 @@
+- name: Deploy Knative Operator
+  command: kubectl apply -f https://github.com/knative/operator/releases/download/knative-v{{ knative_operator_version }}/operator.yaml
+
+- name: Deploy Knative Serving through the Operator
+  block:
+  - template:
+      src: knative-serving.j2
+      dest: /tmp/knative-serving.yaml
+  - command: kubectl apply -f /tmp/knative-serving.yaml
+

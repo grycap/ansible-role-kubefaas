@@ -13,3 +13,18 @@
       when: deploy_openfaas.rc == 1
 
   when: faas_framework == 'openfaas'
+
+- name: "Knative deployment"
+  block:
+    - name: "Check if Knative Operator is already deployed"
+      shell: kubectl get deployment knative-operator
+      register: deploy_knative
+      failed_when: deploy_knative.rc != 0 and deploy_knative.rc != 1
+
+    - name: "Deploy Knative"
+      include: knative.yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      when: deploy_knative.rc == 1
+
+  when: faas_framework == 'knative'
