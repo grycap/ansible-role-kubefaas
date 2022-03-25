@@ -1,0 +1,95 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: knative-serving
+---
+apiVersion: operator.knative.dev/v1beta1
+kind: KnativeServing
+metadata:
+  name: knative-serving
+  namespace: knative-serving
+spec:
+  # Specify version
+{% if knative_version != 'latest' %}
+  version: "{{ knative_version }}"
+{% endif %}
+  # Install kourier
+  ingress:
+    kourier:
+      enabled: true
+      service-type: ClusterIP
+  config:
+    # Enable PVC support
+    config-features:
+      kubernetes.podspec-persistent-volume-claim: enabled
+      kubernetes.podspec-persistent-volume-write: enabled
+    # Use kourier
+    network:
+      ingress-class: "kourier.ingress.networking.knative.dev"
+{% if master_deploy %}
+  deployments:
+  - name: activator
+    nodeSelector:
+      node-role.kubernetes.io/master: ''
+    tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  - name: autoscaler
+    nodeSelector:
+      node-role.kubernetes.io/master: ''
+    tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  - name: autoscaler-hpa
+    nodeSelector:
+      node-role.kubernetes.io/master: ''
+    tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  - name: controller
+    nodeSelector:
+      node-role.kubernetes.io/master: ''
+    tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  - name: domain-mapping
+    nodeSelector:
+      node-role.kubernetes.io/master: ''
+    tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  - name: domainmapping-webhook
+    nodeSelector:
+      node-role.kubernetes.io/master: ''
+    tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  - name: webhook
+    nodeSelector:
+      node-role.kubernetes.io/master: ''
+    tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  - name: net-kourier-controller
+    nodeSelector:
+      node-role.kubernetes.io/master: ''
+    tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  - name: 3scale-kourier-gateway
+    nodeSelector:
+      node-role.kubernetes.io/master: ''
+    tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+{% endif %}

@@ -33,12 +33,12 @@
 
 - name: Create values file
   template:
-    src: values.j2
+    src: openfaas-values.j2
     dest: /tmp/openfaas-values.yaml
 
 - name: Deploy OpenFaaS in WN using helm
   command: >
-    helm upgrade openfaas --install openfaas/openfaas {{ '' if faas_chart_version == 'latest' else ('--version ' + faas_chart_version) }}
+    helm upgrade openfaas --install openfaas/openfaas {{ '' if openfaas_chart_version == 'latest' else ('--version ' + openfaas_chart_version) }}
     --namespace openfaas
     --values /tmp/openfaas-values.yaml
 
@@ -53,12 +53,12 @@
         url: https://github.com/openfaas/faas-cli/releases/download/{{ json_response.json.tag_name }}/faas-cli 
         dest: /usr/local/bin/faas-cli
         mode: 0755
-    when: cli_version == 'latest'
+    when: openfaas_cli_version == 'latest'
   - get_url:
-      url: https://github.com/openfaas/faas-cli/releases/download/{{ cli_version }}/faas-cli 
+      url: https://github.com/openfaas/faas-cli/releases/download/{{ openfaas_cli_version }}/faas-cli 
       dest: /usr/local/bin/faas-cli
       mode: 0755
-    when: cli_version != 'latest'
+    when: openfaas_cli_version != 'latest'
 
 - name: Create 'faas' symlink
   command: ln -sf /usr/local/bin/faas-cli /usr/local/bin/faas
