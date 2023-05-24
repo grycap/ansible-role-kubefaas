@@ -3437,9 +3437,9 @@ spec:
             initialDelaySeconds: 20
 {% if master_deploy %}
       nodeSelector:
-        node-role.kubernetes.io/master: ''
+        node-role.kubernetes.io/control-plane: ''
       tolerations:
-      - key: node-role.kubernetes.io/master
+      - key: node-role.kubernetes.io/control-plane
         operator: Exists
         effect: NoSchedule
 {% endif %}
