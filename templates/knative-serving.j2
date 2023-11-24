@@ -31,65 +31,92 @@ spec:
   deployments:
   - name: activator
     nodeSelector:
-      node-role.kubernetes.io/master: ''
+      node-role.kubernetes.io/control-plane: ''
     tolerations:
     - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
       operator: Exists
       effect: NoSchedule
   - name: autoscaler
     nodeSelector:
-      node-role.kubernetes.io/master: ''
+      node-role.kubernetes.io/control-plane: ''
     tolerations:
     - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
       operator: Exists
       effect: NoSchedule
   - name: autoscaler-hpa
     nodeSelector:
-      node-role.kubernetes.io/master: ''
+      node-role.kubernetes.io/control-plane: ''
     tolerations:
     - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
       operator: Exists
       effect: NoSchedule
   - name: controller
     nodeSelector:
-      node-role.kubernetes.io/master: ''
+      node-role.kubernetes.io/control-plane: ''
     tolerations:
     - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
       operator: Exists
       effect: NoSchedule
   - name: domain-mapping
     nodeSelector:
-      node-role.kubernetes.io/master: ''
+      node-role.kubernetes.io/control-plane: ''
     tolerations:
     - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
       operator: Exists
       effect: NoSchedule
   - name: domainmapping-webhook
     nodeSelector:
-      node-role.kubernetes.io/master: ''
+      node-role.kubernetes.io/control-plane: ''
     tolerations:
     - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
       operator: Exists
       effect: NoSchedule
   - name: webhook
     nodeSelector:
-      node-role.kubernetes.io/master: ''
+      node-role.kubernetes.io/control-plane: ''
     tolerations:
     - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
       operator: Exists
       effect: NoSchedule
   - name: net-kourier-controller
     nodeSelector:
-      node-role.kubernetes.io/master: ''
+      node-role.kubernetes.io/control-plane: ''
     tolerations:
     - key: node-role.kubernetes.io/master
       operator: Exists
       effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
   - name: 3scale-kourier-gateway
     nodeSelector:
-      node-role.kubernetes.io/master: ''
+      node-role.kubernetes.io/control-plane: ''
     tolerations:
     - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
       operator: Exists
       effect: NoSchedule
 {% endif %}
