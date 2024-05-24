@@ -8,8 +8,6 @@
 
     - name: "Deploy OpenFaaS"
       include_tasks: openfaas.yaml
-      environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
       when: deploy_openfaas.rc == 1
 
   when: faas_framework == 'openfaas'
@@ -23,8 +21,6 @@
 
     - name: "Deploy Knative"
       include_tasks: knative.yaml
-      environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
       when: deploy_knative.rc == 1
 
   when: faas_framework == 'knative'
