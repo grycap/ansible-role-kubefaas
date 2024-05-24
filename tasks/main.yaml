@@ -7,7 +7,7 @@
       failed_when: deploy_openfaas.rc != 0 and deploy_openfaas.rc != 1
 
     - name: "Deploy OpenFaaS"
-      include: openfaas.yaml
+      include_tasks: openfaas.yaml
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
       when: deploy_openfaas.rc == 1
@@ -22,7 +22,7 @@
       failed_when: deploy_knative.rc != 0 and deploy_knative.rc != 1
 
     - name: "Deploy Knative"
-      include: knative.yaml
+      include_tasks: knative.yaml
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
       when: deploy_knative.rc == 1
