@@ -13,6 +13,8 @@
 
 - name: Check if basic auth secrets are created
   command: kubectl get secret basic-auth -n openfaas
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
   register: openfaas_secret_created
   failed_when: openfaas_secret_created.rc != 0 and openfaas_secret_created.rc != 1
   ignore_errors: yes
@@ -23,13 +25,20 @@
     kubectl -n openfaas create secret generic basic-auth
     --from-literal=basic-auth-user=admin
     --from-literal=basic-auth-password={{ gw_password }}
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
   when: openfaas_secret_created.rc == 1
+
 
 - name: Add OpenFaaS helm chart
   command: helm repo add openfaas https://openfaas.github.io/faas-netes/
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
 
 - name: Update helm repositories
   command: helm repo update
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
 
 - name: Create values file
   template:
@@ -41,6 +50,8 @@
     helm upgrade openfaas --install openfaas/openfaas {{ '' if openfaas_chart_version == 'latest' else ('--version ' + openfaas_chart_version) }}
     --namespace openfaas
     --values /tmp/openfaas-values.yaml
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
 
 - name: Download the CLI binary
   block:
@@ -66,6 +77,8 @@
 - name: Add OpenFaas URL to FaasCli
   block:
   - command: kubectl get svc gateway -n openfaas -o json
+    environment:
+      KUBECONFIG: "{{ kubeconfig_path }}"
     register: svc
   - set_fact:
       svc_json: "{{ svc.stdout | from_json }}"
