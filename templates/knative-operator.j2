@@ -3470,9 +3470,9 @@ kind: Service
 metadata:
   labels:
     role: operator-webhook
-    operator.knative.dev/release: "v1.{{ knative_operator_version }}"
+    operator.knative.dev/release: "v{{ knative_operator_version }}"
     app.kubernetes.io/component: operator-webhook
-    app.kubernetes.io/version: "1.{{ knative_operator_version }}"
+    app.kubernetes.io/version: "{{ knative_operator_version }}"
     app.kubernetes.io/name: knative-operator
   name: operator-webhook
   namespace: default
@@ -3512,8 +3512,8 @@ metadata:
   name: config-logging
   namespace: default
   labels:
-    operator.knative.dev/release: "v1.{{ knative_operator_version }}"
-    app.kubernetes.io/version: "1.{{ knative_operator_version }}"
+    operator.knative.dev/release: "v{{ knative_operator_version }}"
+    app.kubernetes.io/version: "{{ knative_operator_version }}"
     app.kubernetes.io/part-of: knative-operator
 data:
   _example: |
@@ -3576,8 +3576,8 @@ metadata:
   name: config-observability
   namespace: default
   labels:
-    operator.knative.dev/release: "v1.{{ knative_operator_version }}"
-    app.kubernetes.io/version: "1.{{ knative_operator_version }}"
+    operator.knative.dev/release: "v{{ knative_operator_version }}"
+    app.kubernetes.io/version: "{{ knative_operator_version }}"
     app.kubernetes.io/part-of: knative-operator
 data:
   _example: |
@@ -3680,9 +3680,9 @@ metadata:
   name: knative-operator
   namespace: default
   labels:
-    operator.knative.dev/release: "v1.{{ knative_operator_version }}"
+    operator.knative.dev/release: "v{{ knative_operator_version }}"
     app.kubernetes.io/name: knative-operator
-    app.kubernetes.io/version: "1.{{ knative_operator_version }}"
+    app.kubernetes.io/version: "{{ knative_operator_version }}"
     app.kubernetes.io/part-of: knative-operator
 spec:
   replicas: 1
@@ -3696,7 +3696,7 @@ spec:
       labels:
         name: knative-operator
         app.kubernetes.io/name: knative-operator
-        app.kubernetes.io/version: "1.{{ knative_operator_version }}"
+        app.kubernetes.io/version: "{{ knative_operator_version }}"
         app.kubernetes.io/part-of: knative-operator
     spec:
       serviceAccountName: knative-operator
