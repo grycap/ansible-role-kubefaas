@@ -10,9 +10,10 @@ openfaas_cli_version: latest
 # OpenFaaS queue worker ack wait (max duration in seconds of any async task/request)
 ack_wait: 300
 # Knative Serving version to install
-knative_operator_version: '1.18.1'
+knative_operator_version: '1.17.1'
 # Knative Serving version to install
-knative_version: 'latest'
+knative_version: '1.17.1'
+kourier_version: '1.17.0'
 # Deploy in Kubernetes Master node
 master_deploy: false
 # Expose OpenFaaS as a service (NodePort) or ingress 
