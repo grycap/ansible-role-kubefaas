@@ -15,7 +15,7 @@
   - command: kubectl apply -f /tmp/knative-serving.yaml
   - command: kubectl apply -f https://github.com/knative/serving/releases/download/knative-v{{ knative_version }}/serving-crds.yaml
   - command: kubectl apply -f https://github.com/knative/serving/releases/download/knative-v{{ knative_version }}/serving-core.yaml
-  - command: kubectl apply -f https://github.com/knative/net-kourier/releases/download/knative-v{{ knative_version }}/kourier.yaml
+  - command: kubectl apply -f https://github.com/knative/net-kourier/releases/download/knative-v{{ kourier_version }}/kourier.yaml
   - command: kubectl patch configmap/config-network   --namespace knative-serving   --type merge   --patch '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
   - command: kubectl patch configmap/config-features   --namespace knative-serving   --type merge   --patch '{"data":{"kubernetes.podspec-persistent-volume-claim":"enabled","kubernetes.podspec-persistent-volume-write":"enabled"}}'
   environment:
